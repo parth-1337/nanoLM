@@ -5,6 +5,7 @@ def pair_counts(ids):
         pair_counts[pair] = pair_counts.get(pair, 0) + 1
     return pair_counts
 
+
 def merge_pair(ids, pair, new_id):
     new_ids = []
     i = 0
@@ -16,6 +17,22 @@ def merge_pair(ids, pair, new_id):
             new_ids.append(ids[i])
             i += 1
     return new_ids
+
+
+def encode(text, merges):
+    ids = list(text.encode("utf-8"))
+
+    while len(ids) >= 2:
+        pair_counts = pair_counts(ids)
+        pair_to_merge = min(pair_counts, key=lambda p: merges.get(p, float("inf")))
+
+        if pair_to_merge not in merges:
+            break
+
+        ids = merge_pair(ids, pair_to_merge, merge_map[pair_to_merge])
+
+    return ids
+
 # test text 1000 words
 text = """The quick brown fox jumps over the lazy dog. This classic pangram contains every letter of the English alphabet, making it a perfect starting point for testing fonts, keyboards, and of course, tokenizers. When building a natural language processing system, the first step is often to convert raw text into a sequence of integers. This process is called tokenization. To train a good tokenizer, whether it uses Byte-Pair Encoding (BPE), WordPiece, or Unigram models, you need a diverse dataset. You want words of varying lengths, common suffixes like -ing, -ed, and -tion, as well as a good mix of punctuation marks, numbers, and perhaps even some special characters or symbols. In the early days of computing, text was simply ASCII. Each character was exactly one byte. The letter 'A' was 65, 'B' was 66, and so on. But as software became global, we needed to support thousands of characters from hundreds of languages, leading to the creation of Unicode and UTF-8. UTF-8 is a variable-width character encoding capable of encoding all 1,112,064 valid character code points in Unicode using one to four one-byte code units. It is backward compatible with ASCII, which is why it has become the dominant encoding for the World Wide Web. As of 2026, UTF-8 is used by over 98% of all websites.
 
@@ -51,4 +68,3 @@ for i in range(merge_limit):
     next_id += 1
 
 print(merge_map)
-
