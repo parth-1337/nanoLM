@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-class NanoDecoder(nn.Module):
+class Decoder(nn.Module):
     def __init__(self, vocab_size, d_model):
         super().__init__()
         self.embed = nn.Embedding(vocab_size, d_model)
@@ -10,6 +10,8 @@ class NanoDecoder(nn.Module):
         self.k_proj = nn.Linear(d_model, d_model, bias=False)
         self.v_proj = nn.Linear(d_model, d_model, bias=False)
 
+        # feed forward network setup
+        # data pases inorder that its defined in nn.Sequential
         self.ffn = nn.Sequential(
             nn.Linear(d_model, d_model * 4),
             nn.ReLU(),
@@ -19,6 +21,7 @@ class NanoDecoder(nn.Module):
         self.lm_head = nn.Linear(d_model, vocab_size)
 
     def forward(self, x):
+        # B -> batch , T -> Time/Token Lenght
         B, T = x.shape
 
         x = self.embed(x)
@@ -37,7 +40,7 @@ class NanoDecoder(nn.Module):
 
         attn = F.softmax(scores, dim=-1) @ v
 
-        # connection skipping
+        # connection skipping(residual connection)
         # prevents gradient vanishing
         x = x + attn
         x = x + self.ffn(x)
