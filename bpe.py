@@ -1,4 +1,9 @@
 
+# a simple byte pair encoding tokenizer merges can be adjusted using merge_limit variable 
+# final vocab size will be merge_limit + 256
+# tokens are utf-8 encoded
+
+
 def pair_counts(ids):
     pair_counts = {}
     for i in range(len(ids) - 1):
@@ -54,6 +59,6 @@ for i in range(merge_limit):
     merge_map[max_pair] = next_id
     next_id += 1
 
-test_text = "the quick tokenizer"
-print(encode(test_text, merge_map))
+
+print(encode(text, merge_map))
 #print(merge_map)
