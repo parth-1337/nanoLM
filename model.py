@@ -26,19 +26,19 @@ class NanoDecoder(nn.Module):
         q = self.q_proj(x)
         k = self.k_proj(x)
         v = self.v_proj(x)
-        
-        # attnetion fomrula and divided by root of dimension 
+
+        # attnetion fomrula and divided by root of dimension
         # so softmax doesnt mess up
         # casual masking lower traingle and setting to -inf
-    
-        scores = q @ k.transpose(-2, -1) / (q.size(-1) ** 0.5)   
+
+        scores = q @ k.transpose(-2, -1) / (q.size(-1) ** 0.5)
         mask = torch.tril(torch.ones(T, T)).view(1, T, T).to(x.device)
         scores = scores.masked_fill(mask == 0, float('-inf'))
 
         attn = F.softmax(scores, dim=-1) @ v
 
-        # connection skipping 
-        # prevents gradient vanishing 
+        # connection skipping
+        # prevents gradient vanishing
         x = x + attn
         x = x + self.ffn(x)
 

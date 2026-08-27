@@ -1,5 +1,4 @@
-
-# a simple byte pair encoding tokenizer merges can be adjusted using merge_limit variable 
+# a simple byte pair encoding tokenizer merges can be adjusted using merge_limit variable
 # final vocab size will be merge_limit + 256
 # tokens are utf-8 encoded
 
