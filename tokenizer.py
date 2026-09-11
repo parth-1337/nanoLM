@@ -1,3 +1,10 @@
+import json
+
+# trained merges saved in json for now can cahnge it to pickle which will support tuples
+
+# for rerun just remove the train method and just do gpt.load(merges.json)
+# and then test using encode
+
 class Tokenizer:
     def __init__(self):
         with open("input.txt", "r", encoding="utf-8") as file:
@@ -5,12 +12,26 @@ class Tokenizer:
         self.merge_map = {}
         self.merge_limit = 500
         self.next_id = 256
-        #self.ids = list(text.encode('utf-8'))
+
+    def save(self, path="merges.json"):
+        data = {
+            "merge_map": {f"{k[0]},{k[1]}": v for k, v in self.merge_map.items()},  
+            "next_id": self.next_id
+        }
+        with open(path, "w") as f:
+            json.dump(data, f)
+
+    def load(self, path="tokenizer.json"):
+        with open(path, "r") as f:
+            data = json.load(f)
+        self.merge_map = {tuple(map(int, k.split(","))): v for k, v in data["merge_map"].items()}
+        self.next_id = data["next_id"]
+        self.build_vocab()
 
     def build_vocab(self):
-        vocab = {idx: bytes([idx]) for idx in range(256)}   # base case: single bytes
+        vocab = {idx: bytes([idx]) for idx in range(256)}   
         for pair, new_id in self.merge_map.items():
-            vocab[new_id] = vocab[pair[0]] + vocab[pair[1]]  # concatenate bytes of the merged pair
+            vocab[new_id] = vocab[pair[0]] + vocab[pair[1]]  
         self.vocab = vocab
     
     def decode(self, ids):
@@ -58,8 +79,10 @@ class Tokenizer:
             ids = self.merge_pair(ids, pair_to_merge, self.merge_map[pair_to_merge])
         return ids
 
-obj = Tokenizer()
-obj.train()
-x = obj.encode("thou")
+gpt = Tokenizer()
+#gpt.train()
+#gpt.save("merges.json")
+gpt.load("merges.json")
+x = gpt.encode("an what ")
 print(x)
 
