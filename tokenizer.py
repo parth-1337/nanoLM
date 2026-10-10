@@ -1,5 +1,5 @@
 import json
-
+import struct
 # trained merges saved in json for now can cahnge it to pickle which will support tuples
 
 # for rerun just remove the train method and just do gpt.load(merges.json)
@@ -9,13 +9,14 @@ class Tokenizer:
     def __init__(self):
         with open("input.txt", "r", encoding="utf-8") as file:
                 self.train_text = file.read()
+                #print(self.train_text[2])
         self.merge_map = {}
         self.merge_limit = 500
         self.next_id = 256
 
     def save(self, path="merges.json"):
         data = {
-            "merge_map": {f"{k[0]},{k[1]}": v for k, v in self.merge_map.items()},  
+            "merge_map": {f"{k[0]},{k[1]}": v for k, v in self.merge_map.items()},
             "next_id": self.next_id
         }
         with open(path, "w") as f:
@@ -29,20 +30,22 @@ class Tokenizer:
         self.build_vocab()
 
     def build_vocab(self):
-        vocab = {idx: bytes([idx]) for idx in range(256)}   
+        vocab = {idx: bytes([idx]) for idx in range(256)}
         for pair, new_id in self.merge_map.items():
-            vocab[new_id] = vocab[pair[0]] + vocab[pair[1]]  
+            vocab[new_id] = vocab[pair[0]] + vocab[pair[1]]
         self.vocab = vocab
-    
+
     def decode(self, ids):
         bytes_out = b"".join(self.vocab[idx] for idx in ids)
         return bytes_out.decode("utf-8", errors="replace")
-    
+
     def pair_counts(self,ids):
         pair_counts = {}
         for i in range(len(ids) - 1):
             pair = (ids[i], ids[i+1])
             pair_counts[pair] = pair_counts.get(pair, 0) + 1
+            #print(pair_counts)
+
         return pair_counts
 
     def merge_pair(self, ids, pair, new_id):
@@ -83,6 +86,24 @@ gpt = Tokenizer()
 #gpt.train()
 #gpt.save("merges.json")
 gpt.load("merges.json")
-x = gpt.encode("an what ")
+test = "an what "
+x = gpt.encode(test)
+print(list(test.encode("utf-8")))
+#print(gpt.vocab)
+#print(gpt.merge_map)
 print(x)
+print(gpt.decode([266, 456]))
 
+print(len(gpt.merge_map))
+print(len(gpt.vocab))
+
+# vocab -> bytes
+# pack header vocab len + merge_map len
+#
+with open("tok.bin", "wb") as f:
+    f.write(struct.pack('<ii', len(gpt.vocab), len(gpt.merge_map)))
+    for i in range(len(gpt.vocab)):
+        f.write(struct.pack('<i', len(gpt.vocab[i])))
+        f.write(gpt.vocab[i])
+    for (a, b) in gpt.merge_map.keys():
+        f.write(struct.pack('<ii', a, b))
