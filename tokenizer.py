@@ -99,11 +99,12 @@ print(len(gpt.vocab))
 
 # vocab -> bytes
 # pack header vocab len + merge_map len
-#
+# packed in 4bytes <i
 with open("tok.bin", "wb") as f:
     f.write(struct.pack('<ii', len(gpt.vocab), len(gpt.merge_map)))
     for i in range(len(gpt.vocab)):
         f.write(struct.pack('<i', len(gpt.vocab[i])))
+        # vocab[i] already in bytes no need to pack
         f.write(gpt.vocab[i])
     for (a, b) in gpt.merge_map.keys():
         f.write(struct.pack('<ii', a, b))

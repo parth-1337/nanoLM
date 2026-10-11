@@ -13,7 +13,7 @@ typedef struct {
 } Merge;
 
 int main() {
-    FILE *f = fopen("tok.bin", "rb");     // "rb" = read binary
+    FILE *f = fopen("tok.bin", "rb");
     if (f == NULL) { printf("can't open\n"); return 1; }
 
     int32_t a;
@@ -53,11 +53,6 @@ int main() {
 
     printf("%d %d\n",merges[499].a,merges[499].b);
 
-
-    //printf("%d %d\n", a, b);
-
-
-    //for(int i = 0;i < len())
 
 
 
