@@ -7,6 +7,10 @@ typedef struct {
     int32_t len;
 } Token;
 
+typedef struct {
+    int32_t a;
+    int32_t b;
+} Merge;
 
 int main() {
     FILE *f = fopen("tok.bin", "rb");     // "rb" = read binary
@@ -18,8 +22,8 @@ int main() {
     // read haader 756 , 500
 
 
-    fread(&a, sizeof(int32_t), 1, f);     // read 1 int32 into a
-    fread(&b, sizeof(int32_t), 1, f);    // continues where the last read stopped
+    fread(&a, sizeof(int32_t), 1, f);     // size of vocab
+    fread(&b, sizeof(int32_t), 1, f);    // size of merge_map
 
     int32_t *arr = malloc(a * sizeof(int32_t));
 
@@ -36,9 +40,19 @@ int main() {
         fread(vocab[i].bytes,1,vocab[i].len,f);
     }
 
+    Merge *merges = malloc(b * sizeof(Merge));
+
+    for(int i = 0 ; i < b; i++){
+        fread(&merges[i].a, sizeof(int32_t),1,f);
+        fread(&merges[i].b, sizeof(int32_t),1,f);
+    }
+
     printf("%d\n",vocab[507].len);
     fwrite(vocab[507].bytes, 1, vocab[507].len, stdout);
     printf("\n");
+
+    printf("%d %d\n",merges[499].a,merges[499].b);
+
 
     //printf("%d %d\n", a, b);
 
