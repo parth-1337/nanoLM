@@ -1,5 +1,12 @@
 #include <stdio.h>
 #include <stdint.h>
+#include <stdlib.h>
+
+typedef struct {
+    unsigned char *bytes;
+    int32_t len;
+} Token;
+
 
 int main() {
     FILE *f = fopen("tok.bin", "rb");     // "rb" = read binary
@@ -7,14 +14,39 @@ int main() {
 
     int32_t a;
     int32_t b;
-    int32_t c;
-    int32_t d;
+
+    // read haader 756 , 500
+
+
     fread(&a, sizeof(int32_t), 1, f);     // read 1 int32 into a
     fread(&b, sizeof(int32_t), 1, f);    // continues where the last read stopped
-    fread(&c, sizeof(int32_t), 1, f);
-    fread(&d, sizeof(int32_t), 1, f);
-    printf("%d %d\n", a, b);
-    printf("%d %d\n", c, d);
+
+    int32_t *arr = malloc(a * sizeof(int32_t));
+
+    // for loop
+    // read size
+    // malloc size
+    // read bytes
+
+    Token *vocab = malloc(a * sizeof(Token));
+
+    for(int i = 0 ; i < a; i++){
+        fread(&vocab[i].len, sizeof(int32_t),1,f);
+        vocab[i].bytes = malloc(vocab[i].len);
+        fread(vocab[i].bytes,1,vocab[i].len,f);
+    }
+
+    printf("%d\n",vocab[507].len);
+    fwrite(vocab[507].bytes, 1, vocab[507].len, stdout);
+    printf("\n");
+
+    //printf("%d %d\n", a, b);
+
+
+    //for(int i = 0;i < len())
+
+
+
     fclose(f);
     return 0;
 }
